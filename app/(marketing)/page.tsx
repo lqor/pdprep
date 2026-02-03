@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 
 const stats = [
@@ -13,8 +12,8 @@ const stats = [
 const steps = [
   {
     step: "01",
-    title: "Pick your exam",
-    description: "Choose PD1 or PD2 and see weighted topics mapped to the official blueprint.",
+    title: "Pick a focus",
+    description: "Choose a PD1 topic and see weighted coverage mapped to the official blueprint.",
     accent: "bg-accent-yellow",
   },
   {
@@ -40,7 +39,7 @@ const features = [
   {
     title: "Weighted topic coverage",
     description:
-      "Focus time where it matters based on official PD1/PD2 weighting and your personal accuracy.",
+      "Focus time where it matters based on official PD1 weighting and your personal accuracy.",
   },
   {
     title: "Readiness score",
@@ -54,35 +53,6 @@ const features = [
   },
 ];
 
-const pricing = [
-  {
-    name: "Free",
-    price: "$0",
-    description: "Get a focused taste of PD1 or PD2 prep.",
-    features: ["50 questions per exam", "Basic progress tracking", "Community updates"],
-    cta: "Start free",
-  },
-  {
-    name: "Monthly",
-    price: "$19",
-    description: "Unlimited prep with full analytics and mock exams.",
-    features: [
-      "Unlimited questions",
-      "Mock exams",
-      "Detailed explanations",
-      "Readiness score",
-    ],
-    cta: "Go monthly",
-  },
-  {
-    name: "Yearly",
-    price: "$149",
-    description: "All premium features with 2 months free.",
-    features: ["Everything in Monthly", "Priority updates", "Early access releases"],
-    cta: "Go yearly",
-  },
-];
-
 const faqs = [
   {
     question: "How close are the questions to the real exam?",
@@ -90,9 +60,9 @@ const faqs = [
       "Questions mirror the official blueprint and emphasize the same topics and difficulty bands. Explanations map back to core platform concepts.",
   },
   {
-    question: "Can I switch between PD1 and PD2?",
+    question: "Is PDPrep really free?",
     answer:
-      "Yes. Toggle exams any time and keep separate progress tracking for each certification.",
+      "Yes. PDPrep is free forever for PD1 preparation, with no paywalls or hidden tiers.",
   },
   {
     question: "Do mock exams show the answers?",
@@ -100,9 +70,9 @@ const faqs = [
       "Not during the exam. You get a full review afterwards, including explanations and topic breakdowns.",
   },
   {
-    question: "Is there a lifetime plan?",
+    question: "Can I request new questions?",
     answer:
-      "Yes. The lifetime plan includes all premium features and future content updates.",
+      "Absolutely. We add new questions regularly based on learner feedback.",
   },
 ];
 
@@ -113,7 +83,7 @@ export default function MarketingPage() {
         <div>
           <Badge className="bg-accent-yellow">Warm neo-brutalism</Badge>
           <h1 className="mt-6 text-4xl font-serif leading-tight md:text-6xl">
-            Pass PD1 + PD2 on the
+            Pass PD1 on the
             <span className="italic"> first try</span>.
           </h1>
           <p className="mt-6 text-lg text-textSecondary">
@@ -125,8 +95,8 @@ export default function MarketingPage() {
             <Link href="/signup" className="btn-primary">
               Start free
             </Link>
-            <Link href="#pricing" className="btn-secondary">
-              View pricing
+            <Link href="#how-it-works" className="btn-secondary">
+              See how it works
             </Link>
           </div>
           <div className="mt-10 flex flex-wrap gap-6 text-sm text-textSecondary">
@@ -134,7 +104,7 @@ export default function MarketingPage() {
               Built by certified devs
             </div>
             <div className="neo-border bg-bgSecondary px-4 py-3 shadow-brutal">
-              PD1 + PD2 aligned
+              PD1 aligned
             </div>
           </div>
         </div>
@@ -217,33 +187,19 @@ export default function MarketingPage() {
         </div>
       </section>
 
-      <section id="pricing" className="mx-auto w-full max-w-6xl px-6 pb-20">
-        <div className="flex items-center justify-between">
-          <h2 className="text-3xl md:text-4xl">Pricing</h2>
-          <Badge className="bg-accent-purple">Cancel anytime</Badge>
-        </div>
-        <div className="mt-10 grid gap-6 md:grid-cols-3">
-          {pricing.map((plan) => (
-            <Card key={plan.name} className="flex h-full flex-col">
-              <h3 className="text-2xl font-serif">{plan.name}</h3>
-              <div className="mt-4 text-3xl font-semibold">{plan.price}</div>
-              <p className="mt-3 text-sm text-textSecondary">{plan.description}</p>
-              <ul className="mt-6 space-y-2 text-sm text-textSecondary">
-                {plan.features.map((feature) => (
-                  <li key={feature} className="flex items-center gap-2">
-                    <span className="inline-block h-2 w-2 bg-accent-yellow" />
-                    <span>{feature}</span>
-                  </li>
-                ))}
-              </ul>
-              <div className="mt-8">
-                <Button className="w-full">{plan.cta}</Button>
-              </div>
-            </Card>
-          ))}
-        </div>
-        <div className="mt-6 text-sm text-textSecondary">
-          Looking for lifetime access? Email us for the $299 lifetime plan.
+      <section className="mx-auto w-full max-w-6xl px-6 pb-20">
+        <div className="border-2 border-border bg-bgSecondary px-8 py-10 shadow-brutal">
+          <div className="flex flex-wrap items-center justify-between gap-6">
+            <div>
+              <h2 className="text-3xl font-serif md:text-4xl">Free forever</h2>
+              <p className="mt-3 text-sm text-textSecondary">
+                No subscriptions, no tiers. All PD1 prep content is available for free.
+              </p>
+            </div>
+            <Link href="/signup" className="btn-primary">
+              Start practicing
+            </Link>
+          </div>
         </div>
       </section>
 
@@ -268,15 +224,14 @@ export default function MarketingPage() {
             Ready to pass with confidence?
           </h2>
           <p className="mt-4 text-sm text-textInverse opacity-80">
-            Start with a free PD1 or PD2 question set and unlock the full library
-            when you are ready.
+            Start with a free PD1 question set and build momentum with every session.
           </p>
           <div className="mt-6 flex flex-wrap gap-4">
             <Link href="/signup" className="btn-primary">
               Start free
             </Link>
-            <Link href="/pricing" className="btn-secondary">
-              See plans
+            <Link href="#features" className="btn-secondary">
+              Explore features
             </Link>
           </div>
         </div>

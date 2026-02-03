@@ -7,8 +7,7 @@ export function Footer() {
         <div>
           <h3 className="text-lg font-semibold">pdprep</h3>
           <p className="mt-3 text-sm text-textSecondary">
-            Focused, developer-built preparation for Salesforce Platform Developer
-            certifications.
+            Focused, developer-built preparation for the Salesforce Platform Developer I exam.
           </p>
         </div>
         <div>
@@ -16,9 +15,6 @@ export function Footer() {
             Product
           </h4>
           <div className="mt-3 flex flex-col gap-2 text-sm">
-            <Link href="/pricing" className="interactive">
-              Pricing
-            </Link>
             <Link href="/about" className="interactive">
               About
             </Link>
@@ -33,7 +29,7 @@ export function Footer() {
           </h4>
           <div className="mt-3 flex flex-col gap-2 text-sm text-textSecondary">
             <span>hello@pdprep.com</span>
-            <span>Built for PD1 + PD2 success.</span>
+            <span>Built for PD1 success.</span>
           </div>
         </div>
       </div>

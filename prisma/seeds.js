@@ -39,40 +39,6 @@ const exams = [
       },
     ],
   },
-  {
-    type: "PD2",
-    name: "Platform Developer 2",
-    description: "Salesforce Platform Developer II exam prep",
-    passingScore: 70,
-    durationMinutes: 105,
-    questionCount: 60,
-    topics: [
-      {
-        name: "Apex & Data Management",
-        slug: "apex-data-management",
-        weight: 28,
-        sortOrder: 1,
-      },
-      {
-        name: "Process Automation, Integration",
-        slug: "process-automation-integration",
-        weight: 27,
-        sortOrder: 2,
-      },
-      {
-        name: "User Interface",
-        slug: "user-interface",
-        weight: 20,
-        sortOrder: 3,
-      },
-      {
-        name: "Testing, Debugging, Deployment",
-        slug: "testing-debugging-deployment",
-        weight: 25,
-        sortOrder: 4,
-      },
-    ],
-  },
 ];
 
 async function seedExamsAndTopics() {
@@ -152,7 +118,6 @@ async function seedQuestions(topicMap, examMap) {
     const topic = topicMap[question.examType]?.[question.topic];
 
     if (!exam || !topic) {
-      // Skip if exam/topic mapping is missing
       continue;
     }
 

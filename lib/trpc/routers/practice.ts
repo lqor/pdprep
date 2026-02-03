@@ -6,7 +6,7 @@ import { z } from "zod";
 
 export const practiceRouter = router({
   getTopics: protectedProcedure
-    .input(z.object({ examType: z.enum(["PD1", "PD2"]) }))
+    .input(z.object({ examType: z.enum(["PD1"]) }))
     .query(async ({ ctx, input }) => {
       const topics = await prisma.topic.findMany({
         where: { exam: { type: input.examType }, isActive: true },
@@ -33,7 +33,7 @@ export const practiceRouter = router({
   getQuestions: protectedProcedure
     .input(
       z.object({
-        examType: z.enum(["PD1", "PD2"]),
+        examType: z.enum(["PD1"]),
         topicId: z.string().optional(),
         count: z.number().min(1).max(50).default(10),
         difficulty: z.number().min(1).max(5).optional(),

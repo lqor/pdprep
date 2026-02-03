@@ -9,7 +9,7 @@ export function Navbar() {
           <Link href="/" className="text-xl font-semibold tracking-tight">
             pdprep
           </Link>
-          <Badge className="bg-accent-yellow">PD1 + PD2</Badge>
+          <Badge className="bg-accent-yellow">PD1</Badge>
         </div>
         <nav className="hidden items-center gap-6 text-sm font-semibold text-textSecondary md:flex">
           <Link href="#how-it-works" className="interactive">
@@ -17,9 +17,6 @@ export function Navbar() {
           </Link>
           <Link href="#features" className="interactive">
             Features
-          </Link>
-          <Link href="#pricing" className="interactive">
-            Pricing
           </Link>
           <Link href="#faq" className="interactive">
             FAQ

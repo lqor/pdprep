@@ -5,12 +5,10 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { createSupabaseBrowserClient, isSupabaseConfigured } from "@/lib/auth/supabase";
-import { trpc } from "@/lib/trpc/client";
 
 export default function SettingsPage() {
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
-  const subscription = trpc.subscription.getStatus.useQuery();
 
   useEffect(() => {
     const loadUser = async () => {
@@ -39,7 +37,7 @@ export default function SettingsPage() {
       <div>
         <h1 className="text-3xl">Settings</h1>
         <p className="text-sm text-textSecondary">
-          Manage your profile, preferences, and subscription.
+          Manage your profile and preferences.
         </p>
       </div>
 
@@ -62,23 +60,10 @@ export default function SettingsPage() {
       </Card>
 
       <Card>
-        <h2 className="text-xl font-serif">Subscription</h2>
+        <h2 className="text-xl font-serif">Free forever</h2>
         <p className="mt-3 text-sm text-textSecondary">
-          Current plan: {subscription.data?.plan ?? "FREE"}
+          PDPrep is 100% free for PD1 preparation. No subscriptions or billing required.
         </p>
-        {subscription.data?.currentPeriodEnd ? (
-          <p className="text-xs text-textMuted">
-            Renews {new Date(subscription.data.currentPeriodEnd).toLocaleDateString()}
-          </p>
-        ) : null}
-        <div className="mt-4 flex flex-wrap gap-3">
-          <Button variant="secondary" disabled>
-            Manage billing
-          </Button>
-          <Button variant="ghost" disabled>
-            Cancel plan
-          </Button>
-        </div>
       </Card>
     </div>
   );

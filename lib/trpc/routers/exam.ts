@@ -6,7 +6,7 @@ import { z } from "zod";
 
 export const examRouter = router({
   start: protectedProcedure
-    .input(z.object({ examType: z.enum(["PD1", "PD2"]) }))
+    .input(z.object({ examType: z.enum(["PD1"]) }))
     .mutation(async ({ ctx, input }) => {
       const exam = await prisma.exam.findUnique({
         where: { type: input.examType },
@@ -232,7 +232,7 @@ export const examRouter = router({
   getHistory: protectedProcedure
     .input(
       z.object({
-        examType: z.enum(["PD1", "PD2"]).optional(),
+        examType: z.enum(["PD1"]).optional(),
         limit: z.number().default(10),
       })
     )

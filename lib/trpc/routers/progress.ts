@@ -5,7 +5,7 @@ import { z } from "zod";
 
 export const progressRouter = router({
   getOverview: protectedProcedure
-    .input(z.object({ examType: z.enum(["PD1", "PD2"]) }))
+    .input(z.object({ examType: z.enum(["PD1"]) }))
     .query(async ({ ctx, input }) => {
       const progress = await prisma.userProgress.findMany({
         where: { userId: ctx.userId, exam: { type: input.examType } },
@@ -41,7 +41,7 @@ export const progressRouter = router({
   getTopicProgress: protectedProcedure
     .input(
       z.object({
-        examType: z.enum(["PD1", "PD2"]),
+        examType: z.enum(["PD1"]),
         topicId: z.string(),
       })
     )
@@ -76,7 +76,7 @@ export const progressRouter = router({
       };
     }),
   getReadinessScore: protectedProcedure
-    .input(z.object({ examType: z.enum(["PD1", "PD2"]) }))
+    .input(z.object({ examType: z.enum(["PD1"]) }))
     .query(async ({ ctx, input }) => {
       const progress = await prisma.userProgress.findMany({
         where: { userId: ctx.userId, exam: { type: input.examType } },

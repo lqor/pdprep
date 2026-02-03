@@ -9,7 +9,7 @@ const jetbrains = JetBrains_Mono({ subsets: ["latin"], variable: "--font-mono" }
 export const metadata: Metadata = {
   title: "pdprep",
   description:
-    "Practice questions, mock exams, and progress tracking for Salesforce PD1 and PD2 certifications.",
+    "Practice questions, mock exams, and progress tracking for the Salesforce PD1 certification.",
 };
 
 export default function RootLayout({

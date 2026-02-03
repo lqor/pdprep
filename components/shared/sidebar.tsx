@@ -15,7 +15,7 @@ export function Sidebar() {
     <aside className="flex w-full flex-col gap-6 border-r-2 border-border bg-bgSecondary px-6 py-8 md:w-64">
       <div>
         <h2 className="text-xl font-semibold">pdprep</h2>
-        <p className="text-sm text-textMuted">Your PD1/PD2 cockpit</p>
+        <p className="text-sm text-textMuted">Your PD1 cockpit</p>
       </div>
       <nav className="flex flex-col gap-3 text-sm font-semibold">
         {links.map((link) => (

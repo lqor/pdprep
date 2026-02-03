@@ -51,7 +51,7 @@ export default function LoginPage() {
       <Card className="w-full">
         <h1 className="text-3xl">Welcome back</h1>
         <p className="mt-2 text-sm text-textSecondary">
-          Log in to continue your PD1 or PD2 prep.
+          Log in to continue your PD1 prep.
         </p>
         <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
           <div>

@@ -11,11 +11,6 @@ const exams = [
     title: "Platform Developer 1",
     description: "60 questions • 105 minutes • 68% pass mark",
   },
-  {
-    id: "PD2",
-    title: "Platform Developer 2",
-    description: "60 questions • 105 minutes • 70% pass mark",
-  },
 ] as const;
 
 export default function ExamPage() {
@@ -30,7 +25,7 @@ export default function ExamPage() {
     onSettled: () => setStarting(null),
   });
 
-  const handleStart = (examType: "PD1" | "PD2") => {
+  const handleStart = (examType: "PD1") => {
     setStarting(examType);
     startExam.mutate({ examType });
   };

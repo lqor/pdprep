@@ -4,7 +4,7 @@ const values = [
   {
     title: "Built by devs",
     description:
-      "Every question is reviewed by certified Salesforce developers who have passed PD1 and PD2.",
+      "Every question is reviewed by certified Salesforce developers who have passed PD1.",
   },
   {
     title: "Exam-aligned",
@@ -23,8 +23,8 @@ export default function AboutPage() {
     <section className="mx-auto w-full max-w-6xl px-6 py-16">
       <h1 className="text-4xl md:text-5xl">About pdprep</h1>
       <p className="mt-4 text-lg text-textSecondary">
-        pdprep exists to help Salesforce developers pass PD1 and PD2 on the first
-        try with high-quality practice and honest feedback.
+        pdprep exists to help Salesforce developers pass PD1 on the first try with
+        high-quality practice and honest feedback.
       </p>
       <div className="mt-10 grid gap-6 md:grid-cols-3">
         {values.map((value) => (

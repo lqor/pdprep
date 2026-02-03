@@ -5,10 +5,4 @@ export const examWeights = {
     { topic: "Process Automation and Logic", weight: 30 },
     { topic: "User Interface", weight: 25 },
   ],
-  PD2: [
-    { topic: "Apex & Data Management", weight: 28 },
-    { topic: "Process Automation, Integration", weight: 27 },
-    { topic: "User Interface", weight: 20 },
-    { topic: "Testing, Debugging, Deployment", weight: 25 },
-  ],
 } as const;

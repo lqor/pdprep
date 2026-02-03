@@ -1,8 +1,4 @@
-import { cookies } from "next/headers";
-import {
-  createClientComponentClient,
-  createServerComponentClient,
-} from "@supabase/auth-helpers-nextjs";
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 
 export function isSupabaseConfigured() {
   return Boolean(
@@ -16,11 +12,4 @@ export function createSupabaseBrowserClient() {
     return null;
   }
   return createClientComponentClient();
-}
-
-export function createSupabaseServerClient() {
-  if (!isSupabaseConfigured()) {
-    return null;
-  }
-  return createServerComponentClient({ cookies });
 }
