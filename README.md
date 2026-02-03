@@ -27,6 +27,19 @@ Seed sample data (requires a database connection):
 pnpm db:seed
 ```
 
+If your network blocks direct DB connections, you can apply the schema and seed via the
+Supabase SQL editor instead:
+
+1. Open **Supabase → SQL Editor**.
+2. Run `supabase/schema.sql`.
+3. Run `supabase/seed.sql`.
+
+To regenerate `supabase/seed.sql` after updating the JSON question bank:
+
+```bash
+node scripts/generate-seed-sql.js
+```
+
 ## Project layout
 
 - `app/` - Next.js App Router routes

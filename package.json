@@ -10,7 +10,8 @@
     "lint": "next lint",
     "type-check": "tsc --noEmit",
     "db:seed": "prisma db seed",
-    "db:generate": "prisma generate"
+    "db:generate": "prisma generate",
+    "db:seed:sql": "node scripts/generate-seed-sql.js"
   },
   "dependencies": {
     "@prisma/client": "5.16.2",
