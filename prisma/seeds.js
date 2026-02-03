@@ -100,18 +100,25 @@ async function seedExamsAndTopics() {
 }
 
 async function seedQuestions(topicMap, examMap) {
-  const questionsPath = path.join(
-    process.cwd(),
-    "data",
-    "seed",
-    "questions.sample.json"
-  );
+  const seedFiles = ["questions.sample.json", "pd1_prep_questions.json"];
+  const questions = [];
 
-  if (!fs.existsSync(questionsPath)) {
+  for (const file of seedFiles) {
+    const filePath = path.join(process.cwd(), "data", "seed", file);
+    if (!fs.existsSync(filePath)) {
+      continue;
+    }
+    const parsed = JSON.parse(fs.readFileSync(filePath, "utf-8"));
+    if (Array.isArray(parsed)) {
+      questions.push(...parsed);
+    }
+  }
+
+  if (questions.length === 0) {
     return;
   }
 
-  const questions = JSON.parse(fs.readFileSync(questionsPath, "utf-8"));
+  const seen = new Set();
 
   for (const question of questions) {
     const exam = examMap[question.examType];
@@ -120,6 +127,12 @@ async function seedQuestions(topicMap, examMap) {
     if (!exam || !topic) {
       continue;
     }
+
+    const uniqueKey = `${question.examType}|${question.topic}|${question.content}`;
+    if (seen.has(uniqueKey)) {
+      continue;
+    }
+    seen.add(uniqueKey);
 
     const existing = await prisma.question.findFirst({
       where: {
