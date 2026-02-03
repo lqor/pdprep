@@ -6,7 +6,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { createSupabaseBrowserClient } from "@/lib/auth/supabase";
+import { createSupabaseBrowserClient, isSupabaseConfigured } from "@/lib/auth/supabase";
 
 export default function SignupPage() {
   const router = useRouter();
@@ -23,7 +23,18 @@ export default function SignupPage() {
     setMessage(null);
     setLoading(true);
 
+    if (!isSupabaseConfigured()) {
+      setError("Supabase is not configured. Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY.");
+      setLoading(false);
+      return;
+    }
+
     const supabase = createSupabaseBrowserClient();
+    if (!supabase) {
+      setError("Supabase is not configured.");
+      setLoading(false);
+      return;
+    }
     const redirectTo = `${window.location.origin}/callback`;
 
     const { error: signUpError } = await supabase.auth.signUp({
@@ -97,7 +108,7 @@ export default function SignupPage() {
               {message}
             </div>
           ) : null}
-          <Button className="w-full" disabled={loading}>
+          <Button className="w-full" disabled={loading || !isSupabaseConfigured()}>
             {loading ? "Creating..." : "Create account"}
           </Button>
         </form>

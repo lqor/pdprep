@@ -2,13 +2,22 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { createSupabaseBrowserClient } from "@/lib/auth/supabase";
+import { createSupabaseBrowserClient, isSupabaseConfigured } from "@/lib/auth/supabase";
 
 export default function CallbackPage() {
   const router = useRouter();
 
   useEffect(() => {
+    if (!isSupabaseConfigured()) {
+      router.replace("/login");
+      return;
+    }
+
     const supabase = createSupabaseBrowserClient();
+    if (!supabase) {
+      router.replace("/login");
+      return;
+    }
     const params = new URLSearchParams(window.location.search);
     const code = params.get("code");
 

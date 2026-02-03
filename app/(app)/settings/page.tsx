@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { createSupabaseBrowserClient } from "@/lib/auth/supabase";
+import { createSupabaseBrowserClient, isSupabaseConfigured } from "@/lib/auth/supabase";
 import { trpc } from "@/lib/trpc/client";
 
 export default function SettingsPage() {
@@ -14,7 +14,14 @@ export default function SettingsPage() {
 
   useEffect(() => {
     const loadUser = async () => {
+      if (!isSupabaseConfigured()) {
+        return;
+      }
+
       const supabase = createSupabaseBrowserClient();
+      if (!supabase) {
+        return;
+      }
       const { data } = await supabase.auth.getUser();
       const user = data.user;
       if (user) {

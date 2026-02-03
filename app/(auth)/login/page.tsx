@@ -6,7 +6,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { createSupabaseBrowserClient } from "@/lib/auth/supabase";
+import { createSupabaseBrowserClient, isSupabaseConfigured } from "@/lib/auth/supabase";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -20,7 +20,18 @@ export default function LoginPage() {
     setError(null);
     setLoading(true);
 
+    if (!isSupabaseConfigured()) {
+      setError("Supabase is not configured. Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY.");
+      setLoading(false);
+      return;
+    }
+
     const supabase = createSupabaseBrowserClient();
+    if (!supabase) {
+      setError("Supabase is not configured.");
+      setLoading(false);
+      return;
+    }
     const { error: signInError } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -70,7 +81,7 @@ export default function LoginPage() {
               {error}
             </div>
           ) : null}
-          <Button className="w-full" disabled={loading}>
+          <Button className="w-full" disabled={loading || !isSupabaseConfigured()}>
             {loading ? "Signing in..." : "Sign in"}
           </Button>
         </form>
