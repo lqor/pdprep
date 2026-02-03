@@ -1,0 +1,349 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ============================================
+// USER & AUTHENTICATION
+// ============================================
+
+model User {
+  id                 String    @id @default(cuid())
+  email              String    @unique
+  name               String?
+  avatarUrl          String?
+
+  // Subscription
+  stripeCustomerId   String?   @unique
+  subscription       Subscription?
+
+  // Preferences
+  selectedExam       ExamType  @default(PD1)
+  emailNotifications Boolean   @default(true)
+
+  // Timestamps
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+  lastActiveAt       DateTime  @default(now())
+
+  // Relations
+  progress           UserProgress[]
+  answers            UserAnswer[]
+  examAttempts       ExamAttempt[]
+
+  @@index([email])
+  @@index([stripeCustomerId])
+}
+
+model Subscription {
+  id                   String    @id @default(cuid())
+  userId               String    @unique
+  user                 User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Stripe
+  stripeSubscriptionId String    @unique
+  stripePriceId        String
+
+  // Status
+  status               SubscriptionStatus
+  plan                 PlanType
+
+  // Billing period
+  currentPeriodStart   DateTime
+  currentPeriodEnd     DateTime
+  cancelAtPeriodEnd    Boolean   @default(false)
+
+  // Timestamps
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+
+  @@index([stripeSubscriptionId])
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  CANCELED
+  INCOMPLETE
+  INCOMPLETE_EXPIRED
+  PAST_DUE
+  TRIALING
+  UNPAID
+}
+
+enum PlanType {
+  FREE
+  MONTHLY
+  YEARLY
+  LIFETIME
+}
+
+enum ExamType {
+  PD1
+  PD2
+}
+
+// ============================================
+// CONTENT
+// ============================================
+
+model Exam {
+  id              String    @id @default(cuid())
+  type            ExamType
+  name            String
+  description     String?
+
+  // Exam configuration
+  questionCount   Int       @default(60)
+  passingScore    Int       @default(68)
+  durationMinutes Int       @default(105)
+
+  // Status
+  isActive        Boolean   @default(true)
+
+  // Timestamps
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  // Relations
+  topics          Topic[]
+  questions       Question[]
+  attempts        ExamAttempt[]
+  progress        UserProgress[]
+
+  @@unique([type])
+}
+
+model Topic {
+  id          String    @id @default(cuid())
+  examId      String
+  exam        Exam      @relation(fields: [examId], references: [id], onDelete: Cascade)
+
+  name        String
+  slug        String
+  description String?
+
+  // Exam weighting (percentage)
+  weight      Int
+
+  // Order for display
+  sortOrder   Int       @default(0)
+
+  // Status
+  isActive    Boolean   @default(true)
+
+  // Timestamps
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // Relations
+  questions   Question[]
+  progress    UserProgress[]
+
+  @@unique([examId, slug])
+  @@index([examId])
+}
+
+model Question {
+  id            String    @id @default(cuid())
+  examId        String
+  exam          Exam      @relation(fields: [examId], references: [id], onDelete: Cascade)
+  topicId       String
+  topic         Topic     @relation(fields: [topicId], references: [id], onDelete: Cascade)
+
+  // Question content
+  content       String
+  codeSnippet   String?
+
+  // Question type
+  type          QuestionType @default(SINGLE_CHOICE)
+
+  // Difficulty (1-5)
+  difficulty    Int       @default(3)
+
+  // Explanation shown after answering
+  explanation   String
+
+  // Reference to official documentation
+  referenceUrl  String?
+
+  // Metadata
+  isPremium     Boolean   @default(false)
+  isActive      Boolean   @default(true)
+
+  // Timestamps
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  answers       Answer[]
+  userAnswers   UserAnswer[]
+  examQuestions ExamAttemptQuestion[]
+
+  @@index([examId])
+  @@index([topicId])
+  @@index([isPremium])
+}
+
+enum QuestionType {
+  SINGLE_CHOICE
+  MULTIPLE_CHOICE
+}
+
+model Answer {
+  id          String    @id @default(cuid())
+  questionId  String
+  question    Question  @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  content     String
+  isCorrect   Boolean   @default(false)
+
+  // Order for display
+  sortOrder   Int       @default(0)
+
+  // Timestamps
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // Relations
+  userAnswers UserAnswerSelection[]
+
+  @@index([questionId])
+}
+
+// ============================================
+// USER PROGRESS & ANSWERS
+// ============================================
+
+model UserProgress {
+  id                 String    @id @default(cuid())
+  userId             String
+  user               User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  examId             String
+  exam               Exam      @relation(fields: [examId], references: [id], onDelete: Cascade)
+  topicId            String
+  topic              Topic     @relation(fields: [topicId], references: [id], onDelete: Cascade)
+
+  // Stats
+  questionsAttempted Int       @default(0)
+  questionsCorrect   Int       @default(0)
+
+  // Calculated on update
+  accuracyPercentage Float     @default(0)
+
+  // Timestamps
+  lastPracticedAt    DateTime?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  @@unique([userId, examId, topicId])
+  @@index([userId])
+  @@index([examId])
+}
+
+model UserAnswer {
+  id            String    @id @default(cuid())
+  userId        String
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  questionId    String
+  question      Question  @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  // Result
+  isCorrect     Boolean
+
+  // Time spent (seconds)
+  timeSpent     Int?
+
+  // Context
+  context       AnswerContext @default(PRACTICE)
+  examAttemptId String?
+
+  // Timestamps
+  answeredAt    DateTime  @default(now())
+
+  // Relations
+  selections    UserAnswerSelection[]
+
+  @@index([userId])
+  @@index([questionId])
+  @@index([userId, questionId])
+}
+
+model UserAnswerSelection {
+  id           String    @id @default(cuid())
+  userAnswerId String
+  userAnswer   UserAnswer @relation(fields: [userAnswerId], references: [id], onDelete: Cascade)
+  answerId     String
+  answer       Answer    @relation(fields: [answerId], references: [id], onDelete: Cascade)
+
+  @@unique([userAnswerId, answerId])
+}
+
+enum AnswerContext {
+  PRACTICE
+  EXAM
+}
+
+// ============================================
+// MOCK EXAMS
+// ============================================
+
+model ExamAttempt {
+  id              String    @id @default(cuid())
+  userId          String
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  examId          String
+  exam            Exam      @relation(fields: [examId], references: [id], onDelete: Cascade)
+
+  // Configuration
+  questionCount   Int
+  durationMinutes Int
+
+  // Status
+  status          ExamAttemptStatus @default(IN_PROGRESS)
+
+  // Results (populated on completion)
+  score           Int?
+  passed          Boolean?
+
+  // Timing
+  startedAt       DateTime  @default(now())
+  completedAt     DateTime?
+
+  // Questions
+  questions       ExamAttemptQuestion[]
+
+  @@index([userId])
+  @@index([examId])
+  @@index([userId, examId])
+}
+
+model ExamAttemptQuestion {
+  id            String    @id @default(cuid())
+  examAttemptId String
+  examAttempt   ExamAttempt @relation(fields: [examAttemptId], references: [id], onDelete: Cascade)
+  questionId    String
+  question      Question  @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  // Order in exam
+  sortOrder     Int
+
+  // Answer (null if not yet answered)
+  userAnswerId  String?
+
+  // Flagged for review
+  isFlagged     Boolean   @default(false)
+
+  @@unique([examAttemptId, questionId])
+  @@index([examAttemptId])
+}
+
+enum ExamAttemptStatus {
+  IN_PROGRESS
+  COMPLETED
+  ABANDONED
+}
