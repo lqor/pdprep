@@ -81,7 +81,7 @@ export default function LoginPage() {
               {error}
             </div>
           ) : null}
-          <Button className="w-full" disabled={loading || !isSupabaseConfigured()}>
+          <Button type="submit" className="w-full" disabled={loading || !isSupabaseConfigured()}>
             {loading ? "Signing in..." : "Sign in"}
           </Button>
         </form>

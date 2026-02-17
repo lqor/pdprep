@@ -108,7 +108,7 @@ export default function SignupPage() {
               {message}
             </div>
           ) : null}
-          <Button className="w-full" disabled={loading || !isSupabaseConfigured()}>
+          <Button type="submit" className="w-full" disabled={loading || !isSupabaseConfigured()}>
             {loading ? "Creating..." : "Create account"}
           </Button>
         </form>

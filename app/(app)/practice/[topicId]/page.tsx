@@ -1,41 +1,59 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { trpc } from "@/lib/trpc/client";
+
+const QUESTIONS_PER_SESSION = 10;
 
 export default function PracticeSessionPage({
   params,
 }: {
   params: { topicId: string };
 }) {
+  const router = useRouter();
+  const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedAnswers, setSelectedAnswers] = useState<string[]>([]);
   const [submitted, setSubmitted] = useState<{
     isCorrect: boolean;
     correctAnswerIds: string[];
     explanation: string;
   } | null>(null);
-
-  const { data, isLoading, refetch } = trpc.practice.getQuestions.useQuery({
-    examType: "PD1",
-    topicId: params.topicId,
-    count: 1,
+  const [sessionResults, setSessionResults] = useState<{ correct: number; total: number }>({
+    correct: 0,
+    total: 0,
   });
 
-  const question = data?.[0];
-  const isMultipleChoice = question?.type === "MULTIPLE_CHOICE";
+  const { data: questions, isLoading } = trpc.practice.getQuestions.useQuery({
+    examType: "PD1",
+    topicId: params.topicId,
+    count: QUESTIONS_PER_SESSION,
+  });
 
-  useEffect(() => {
-    setSelectedAnswers([]);
-    setSubmitted(null);
-  }, [question?.id]);
+  const question = questions?.[currentIndex];
+  const isMultipleChoice = question?.type === "MULTIPLE_CHOICE";
+  const isLastQuestion = questions && currentIndex >= questions.length - 1;
+  const isSessionComplete = questions && currentIndex >= questions.length;
 
   const answerMap = useMemo(
     () => new Set(submitted?.correctAnswerIds ?? []),
     [submitted]
   );
+
+  const handleNextQuestion = () => {
+    if (submitted) {
+      setSessionResults((prev) => ({
+        correct: prev.correct + (submitted.isCorrect ? 1 : 0),
+        total: prev.total + 1,
+      }));
+    }
+    setSelectedAnswers([]);
+    setSubmitted(null);
+    setCurrentIndex((i) => i + 1);
+  };
 
   const submitAnswer = trpc.practice.submitAnswer.useMutation({
     onSuccess: (response) => {
@@ -69,17 +87,59 @@ export default function PracticeSessionPage({
   if (isLoading) {
     return (
       <Card>
-        <p className="text-sm text-textSecondary">Loading question…</p>
+        <p className="text-sm text-textSecondary">Loading questions…</p>
       </Card>
+    );
+  }
+
+  if (!questions || questions.length === 0) {
+    return (
+      <Card>
+        <p className="text-sm text-textSecondary">No questions available for this topic.</p>
+        <Button className="mt-4" onClick={() => router.push("/practice")}>
+          Back to topics
+        </Button>
+      </Card>
+    );
+  }
+
+  if (isSessionComplete) {
+    const finalCorrect = sessionResults.correct + (submitted?.isCorrect ? 1 : 0);
+    const finalTotal = sessionResults.total + (submitted ? 1 : 0);
+    const percentage = Math.round((finalCorrect / finalTotal) * 100);
+
+    return (
+      <div className="space-y-8">
+        <div>
+          <h1 className="text-3xl">Session complete</h1>
+          <p className="text-sm text-textSecondary">Great work on finishing this practice session.</p>
+        </div>
+        <Card>
+          <div className="text-center">
+            <div className="text-5xl font-semibold">{percentage}%</div>
+            <p className="mt-2 text-textSecondary">
+              {finalCorrect} of {finalTotal} correct
+            </p>
+          </div>
+          <div className="mt-8 flex flex-wrap justify-center gap-3">
+            <Button onClick={() => router.push("/practice")}>
+              Back to topics
+            </Button>
+            <Button variant="secondary" onClick={() => window.location.reload()}>
+              Practice again
+            </Button>
+          </div>
+        </Card>
+      </div>
     );
   }
 
   if (!question) {
     return (
       <Card>
-        <p className="text-sm text-textSecondary">No questions available yet.</p>
-        <Button className="mt-4" onClick={() => refetch()}>
-          Try again
+        <p className="text-sm text-textSecondary">Question not found.</p>
+        <Button className="mt-4" onClick={() => router.push("/practice")}>
+          Back to topics
         </Button>
       </Card>
     );
@@ -94,7 +154,7 @@ export default function PracticeSessionPage({
             Topic: <span className="font-semibold">{question.topic.name}</span>
           </p>
         </div>
-        <Badge className="bg-accent-yellow">Question 1 of 1</Badge>
+        <Badge className="bg-accent-yellow">Question {currentIndex + 1} of {questions.length}</Badge>
       </div>
 
       <Card>
@@ -138,8 +198,8 @@ export default function PracticeSessionPage({
           <Button onClick={handleSubmit} disabled={submitAnswer.isPending || Boolean(submitted)}>
             {submitAnswer.isPending ? "Submitting..." : "Submit answer"}
           </Button>
-          <Button variant="ghost" onClick={() => refetch()}>
-            Next question
+          <Button variant="ghost" onClick={handleNextQuestion} disabled={!submitted}>
+            {isLastQuestion ? "Finish session" : "Next question"}
           </Button>
         </div>
       </Card>

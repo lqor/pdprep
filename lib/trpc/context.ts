@@ -7,7 +7,7 @@ export async function createContext(_opts: FetchCreateContextFnOptions) {
     !process.env.NEXT_PUBLIC_SUPABASE_URL ||
     !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
   ) {
-    return { userId: undefined as string | undefined };
+    return { userId: undefined as string | undefined, userEmail: undefined as string | undefined, userName: undefined as string | undefined };
   }
 
   const supabase = createRouteHandlerClient({ cookies });
@@ -15,7 +15,11 @@ export async function createContext(_opts: FetchCreateContextFnOptions) {
     data: { session },
   } = await supabase.auth.getSession();
 
-  return { userId: session?.user.id };
+  return {
+    userId: session?.user.id,
+    userEmail: session?.user.email,
+    userName: session?.user.user_metadata?.full_name as string | undefined,
+  };
 }
 
 export type Context = Awaited<ReturnType<typeof createContext>>;

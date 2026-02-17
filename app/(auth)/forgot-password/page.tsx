@@ -76,7 +76,7 @@ export default function ForgotPasswordPage() {
               {message}
             </div>
           ) : null}
-          <Button className="w-full" disabled={loading || !isSupabaseConfigured()}>
+          <Button type="submit" className="w-full" disabled={loading || !isSupabaseConfigured()}>
             {loading ? "Sending..." : "Send reset link"}
           </Button>
         </form>
