@@ -1,58 +1,27 @@
 import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
+import { authTables } from "@convex-dev/auth/server";
 
 export default defineSchema({
-  authAccounts: defineTable({
-    userId: v.id("users"),
-    provider: v.string(),
-    providerAccountId: v.string(),
-    secret: v.optional(v.string()),
-    emailVerified: v.optional(v.string()),
-    phoneVerified: v.optional(v.string()),
-  })
-    .index("by_provider_account", ["provider", "providerAccountId"])
-    .index("by_userId", ["userId"]),
-
-  authSessions: defineTable({
-    userId: v.id("users"),
-    expirationTime: v.number(),
-  }).index("by_userId", ["userId"]),
-
-  authRefreshTokens: defineTable({
-    sessionId: v.id("authSessions"),
-    expirationTime: v.number(),
-  }).index("by_sessionId", ["sessionId"]),
-
-  authVerificationCodes: defineTable({
-    accountId: v.id("authAccounts"),
-    code: v.string(),
-    expirationTime: v.number(),
-    verifier: v.optional(v.string()),
-    emailVerified: v.optional(v.string()),
-    phoneVerified: v.optional(v.string()),
-  })
-    .index("by_accountId", ["accountId"])
-    .index("by_code", ["code"]),
-
-  authVerifiers: defineTable({
-    sessionId: v.optional(v.id("authSessions")),
-    signature: v.optional(v.string()),
-  }),
-
-  authRateLimits: defineTable({
-    identifier: v.string(),
-    lastAttemptTime: v.number(),
-    attemptsLeft: v.number(),
-  }).index("by_identifier", ["identifier"]),
-
+  ...authTables,
+  // Override users table to add app-specific fields
   users: defineTable({
-    email: v.optional(v.string()),
+    // Fields required by @convex-dev/auth
     name: v.optional(v.string()),
+    image: v.optional(v.string()),
+    email: v.optional(v.string()),
+    emailVerificationTime: v.optional(v.number()),
+    phone: v.optional(v.string()),
+    phoneVerificationTime: v.optional(v.number()),
+    isAnonymous: v.optional(v.boolean()),
+    // App-specific fields
     avatarUrl: v.optional(v.string()),
     selectedExam: v.optional(v.string()),
     emailNotifications: v.optional(v.boolean()),
     lastActiveAt: v.optional(v.number()),
-  }).index("by_email", ["email"]),
+  })
+    .index("email", ["email"])
+    .index("phone", ["phone"]),
 
   subscriptions: defineTable({
     userId: v.id("users"),
