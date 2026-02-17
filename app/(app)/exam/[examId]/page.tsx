@@ -2,69 +2,68 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import { useQuery, useMutation } from "convex/react";
+import { api } from "@/convex/_generated/api";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { trpc } from "@/lib/trpc/client";
+import { Id } from "@/convex/_generated/dataModel";
 
 export default function ExamAttemptPage({ params }: { params: { examId: string } }) {
-  const { data, isLoading, refetch } = trpc.exam.getAttempt.useQuery({
-    examAttemptId: params.examId,
-  });
+  const examAttemptId = params.examId as Id<"examAttempts">;
+  const data = useQuery(api.exam.getAttempt, { examAttemptId });
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selections, setSelections] = useState<Record<string, string[]>>({});
   const [submittingId, setSubmittingId] = useState<string | null>(null);
 
-  const submitAnswer = trpc.exam.submitAnswer.useMutation({
-    onSuccess: () => {
-      setSubmittingId(null);
-      refetch();
-    },
-    onError: () => setSubmittingId(null),
-  });
+  const submitAnswerMutation = useMutation(api.exam.submitAnswer);
+  const flagQuestionMutation = useMutation(api.exam.flagQuestion);
 
-  const flagQuestion = trpc.exam.flagQuestion.useMutation({
-    onSuccess: () => refetch(),
-  });
-
+  const isLoading = data === undefined;
   const questions = data?.questions ?? [];
   const current = questions[currentIndex];
-  const answerSelections = current ? selections[current.questionId] ?? [] : [];
+  const answerSelections = current ? selections[current.questionId as string] ?? [] : [];
 
   const isMultipleChoice = current?.question.type === "MULTIPLE_CHOICE";
 
   const toggleAnswer = (answerId: string) => {
     if (!current) return;
+    const qId = current.questionId as string;
     if (!isMultipleChoice) {
-      setSelections((prev) => ({ ...prev, [current.questionId]: [answerId] }));
+      setSelections((prev) => ({ ...prev, [qId]: [answerId] }));
       return;
     }
 
     setSelections((prev) => {
-      const existing = prev[current.questionId] ?? [];
+      const existing = prev[qId] ?? [];
       return {
         ...prev,
-        [current.questionId]: existing.includes(answerId)
+        [qId]: existing.includes(answerId)
           ? existing.filter((id) => id !== answerId)
           : [...existing, answerId],
       };
     });
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!current || answerSelections.length === 0) return;
-    setSubmittingId(current.questionId);
-    submitAnswer.mutate({
-      examAttemptId: params.examId,
-      questionId: current.questionId,
-      selectedAnswerIds: answerSelections,
-    });
+    const qId = current.questionId as string;
+    setSubmittingId(qId);
+    try {
+      await submitAnswerMutation({
+        examAttemptId,
+        questionId: current.questionId,
+        selectedAnswerIds: answerSelections,
+      });
+    } finally {
+      setSubmittingId(null);
+    }
   };
 
-  const handleFlag = () => {
+  const handleFlag = async () => {
     if (!current) return;
-    flagQuestion.mutate({
-      examAttemptId: params.examId,
+    await flagQuestionMutation({
+      examAttemptId,
       questionId: current.questionId,
       isFlagged: !current.isFlagged,
     });
@@ -76,7 +75,7 @@ export default function ExamAttemptPage({ params }: { params: { examId: string }
     const map = new Set<string>();
     questions.forEach((q) => {
       if (q.userAnswerId) {
-        map.add(q.questionId);
+        map.add(q.questionId as string);
       }
     });
     return map;
@@ -133,8 +132,8 @@ export default function ExamAttemptPage({ params }: { params: { examId: string }
             ))}
           </div>
           <div className="mt-6 flex flex-wrap gap-3">
-            <Button onClick={handleSubmit} disabled={isAnswered || submittingId === current.questionId}>
-              {submittingId === current.questionId ? "Saving..." : "Save answer"}
+            <Button onClick={handleSubmit} disabled={isAnswered || submittingId === (current.questionId as string)}>
+              {submittingId === (current.questionId as string) ? "Saving..." : "Save answer"}
             </Button>
             <Button variant="ghost" onClick={handleFlag}>
               {current.isFlagged ? "Unflag" : "Flag for review"}
@@ -145,7 +144,7 @@ export default function ExamAttemptPage({ params }: { params: { examId: string }
           <h3 className="text-lg font-serif">Navigator</h3>
           <div className="mt-4 grid grid-cols-5 gap-2 text-xs">
             {questions.map((question, index) => {
-              const answered = answeredMap.has(question.questionId);
+              const answered = answeredMap.has(question.questionId as string);
               return (
                 <button
                   key={question.id}

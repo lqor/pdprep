@@ -3,58 +3,32 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useAuthActions } from "@convex-dev/auth/react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { createSupabaseBrowserClient, isSupabaseConfigured } from "@/lib/auth/supabase";
 
 export default function SignupPage() {
   const router = useRouter();
+  const { signIn } = useAuthActions();
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const [message, setMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setError(null);
-    setMessage(null);
     setLoading(true);
 
-    if (!isSupabaseConfigured()) {
-      setError("Supabase is not configured. Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY.");
+    try {
+      await signIn("password", { email, password, name: fullName, flow: "signUp" });
+      router.replace("/dashboard");
+    } catch (err: any) {
+      setError(err?.message ?? "Could not create account.");
       setLoading(false);
-      return;
     }
-
-    const supabase = createSupabaseBrowserClient();
-    if (!supabase) {
-      setError("Supabase is not configured.");
-      setLoading(false);
-      return;
-    }
-    const redirectTo = `${window.location.origin}/callback`;
-
-    const { error: signUpError } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: { full_name: fullName },
-        emailRedirectTo: redirectTo,
-      },
-    });
-
-    if (signUpError) {
-      setError(signUpError.message);
-      setLoading(false);
-      return;
-    }
-
-    setMessage("Check your inbox to confirm your email.");
-    setLoading(false);
-    router.replace("/login");
   };
 
   return (
@@ -103,12 +77,7 @@ export default function SignupPage() {
               {error}
             </div>
           ) : null}
-          {message ? (
-            <div className="neo-border bg-successBg px-3 py-2 text-sm text-textSecondary shadow-brutal">
-              {message}
-            </div>
-          ) : null}
-          <Button type="submit" className="w-full" disabled={loading || !isSupabaseConfigured()}>
+          <Button type="submit" className="w-full" disabled={loading}>
             {loading ? "Creating..." : "Create account"}
           </Button>
         </form>

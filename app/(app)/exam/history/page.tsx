@@ -1,10 +1,12 @@
 "use client";
 
+import { useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
 import { Card } from "@/components/ui/card";
-import { trpc } from "@/lib/trpc/client";
 
 export default function ExamHistoryPage() {
-  const { data, isLoading } = trpc.exam.getHistory.useQuery({ limit: 10 });
+  const data = useQuery(api.exam.getHistory, { limit: 10 });
+  const isLoading = data === undefined;
 
   return (
     <div className="space-y-8">
@@ -24,7 +26,7 @@ export default function ExamHistoryPage() {
                 key={attempt.id}
                 className="neo-border flex flex-wrap items-center justify-between bg-bgPrimary px-4 py-3 shadow-brutal"
               >
-                <span className="font-semibold">Exam #{attempt.id.slice(0, 6)}</span>
+                <span className="font-semibold">Exam #{(attempt.id as string).slice(0, 6)}</span>
                 <span className="text-textSecondary">
                   {new Date(attempt.startedAt).toLocaleDateString()}
                 </span>

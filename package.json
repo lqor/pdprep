@@ -12,19 +12,12 @@
     "test": "vitest",
     "test:run": "vitest run",
     "test:coverage": "vitest run --coverage",
-    "db:seed": "prisma db seed",
-    "db:generate": "prisma generate",
-    "db:seed:sql": "node scripts/generate-seed-sql.js"
+    "convex:dev": "convex dev"
   },
   "dependencies": {
-    "@prisma/client": "5.16.2",
-    "@supabase/auth-helpers-nextjs": "0.10.0",
-    "@supabase/supabase-js": "2.45.4",
-    "@tanstack/react-query": "5.56.2",
-    "@trpc/client": "11.0.0-rc.377",
-    "@trpc/next": "11.0.0-rc.377",
-    "@trpc/react-query": "11.0.0-rc.377",
-    "@trpc/server": "11.0.0-rc.377",
+    "@auth/core": "^0.37.4",
+    "@convex-dev/auth": "^0.0.90",
+    "convex": "^1.31.7",
     "next": "14.2.5",
     "react": "18.2.0",
     "react-dom": "18.2.0",
@@ -45,13 +38,9 @@
     "eslint-config-next": "14.2.5",
     "jsdom": "^24.0.0",
     "postcss": "8.4.39",
-    "prisma": "5.16.2",
     "tailwindcss": "3.4.7",
     "typescript": "5.5.4",
     "vite": "5.4.0",
     "vitest": "^1.6.0"
-  },
-  "prisma": {
-    "seed": "node prisma/seeds.js"
   }
 }

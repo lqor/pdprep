@@ -2,13 +2,15 @@
 
 import type { Route } from "next";
 import { useRouter } from "next/navigation";
+import { useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { trpc } from "@/lib/trpc/client";
 
 export default function PracticePage() {
   const router = useRouter();
-  const { data, isLoading } = trpc.practice.getTopics.useQuery({ examType: "PD1" });
+  const data = useQuery(api.practice.getTopics, { examType: "PD1" });
+  const isLoading = data === undefined;
 
   const practiceAllHref = data?.[0] ? `/practice/${data[0].slug}` : null;
 

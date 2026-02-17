@@ -1,23 +1,15 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { useAuthActions } from "@convex-dev/auth/react";
 import { Button } from "@/components/ui/button";
-import { createSupabaseBrowserClient, isSupabaseConfigured } from "@/lib/auth/supabase";
 
 export function SignOutButton() {
   const router = useRouter();
+  const { signOut } = useAuthActions();
 
   const handleSignOut = async () => {
-    if (!isSupabaseConfigured()) {
-      router.replace("/login");
-      return;
-    }
-    const supabase = createSupabaseBrowserClient();
-    if (!supabase) {
-      router.replace("/login");
-      return;
-    }
-    await supabase.auth.signOut();
+    await signOut();
     router.replace("/login");
   };
 

@@ -2,8 +2,9 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useMutation } from "convex/react";
+import { api } from "@/convex/_generated/api";
 import { Card } from "@/components/ui/card";
-import { trpc } from "@/lib/trpc/client";
 
 const exams = [
   {
@@ -16,18 +17,18 @@ const exams = [
 export default function ExamPage() {
   const router = useRouter();
   const [starting, setStarting] = useState<string | null>(null);
-  const startExam = trpc.exam.start.useMutation({
-    onSuccess: (data) => {
+  const startExam = useMutation(api.exam.start);
+
+  const handleStart = async (examType: "PD1") => {
+    setStarting(examType);
+    try {
+      const data = await startExam({ examType });
       if (data.examAttemptId) {
         router.push(`/exam/${data.examAttemptId}`);
       }
-    },
-    onSettled: () => setStarting(null),
-  });
-
-  const handleStart = (examType: "PD1") => {
-    setStarting(examType);
-    startExam.mutate({ examType });
+    } finally {
+      setStarting(null);
+    }
   };
 
   return (

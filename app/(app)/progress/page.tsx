@@ -1,11 +1,13 @@
 "use client";
 
+import { useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { trpc } from "@/lib/trpc/client";
 
 export default function ProgressPage() {
-  const { data, isLoading } = trpc.progress.getOverview.useQuery({ examType: "PD1" });
+  const data = useQuery(api.progress.getOverview, { examType: "PD1" });
+  const isLoading = data === undefined;
 
   return (
     <div className="space-y-8">

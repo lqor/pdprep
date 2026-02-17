@@ -19,9 +19,6 @@ pnpm-debug.log*
 *.tsbuildinfo
 *.swp
 
-# Prisma
-prisma/.env
-
 # Misc
 .vercel/
 .pnpm-store/

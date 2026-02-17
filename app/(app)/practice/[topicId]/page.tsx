@@ -2,10 +2,11 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useQuery, useMutation } from "convex/react";
+import { api } from "@/convex/_generated/api";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { trpc } from "@/lib/trpc/client";
 
 const QUESTIONS_PER_SESSION = 10;
 
@@ -26,12 +27,16 @@ export default function PracticeSessionPage({
     correct: 0,
     total: 0,
   });
+  const [isPending, setIsPending] = useState(false);
 
-  const { data: questions, isLoading } = trpc.practice.getQuestions.useQuery({
+  const questions = useQuery(api.practice.getQuestions, {
     examType: "PD1",
     topicId: params.topicId,
     count: QUESTIONS_PER_SESSION,
   });
+  const isLoading = questions === undefined;
+
+  const submitAnswerMutation = useMutation(api.practice.submitAnswer);
 
   const question = questions?.[currentIndex];
   const isMultipleChoice = question?.type === "MULTIPLE_CHOICE";
@@ -55,16 +60,6 @@ export default function PracticeSessionPage({
     setCurrentIndex((i) => i + 1);
   };
 
-  const submitAnswer = trpc.practice.submitAnswer.useMutation({
-    onSuccess: (response) => {
-      setSubmitted({
-        isCorrect: response.isCorrect,
-        correctAnswerIds: response.correctAnswerIds,
-        explanation: response.explanation,
-      });
-    },
-  });
-
   const toggleAnswer = (answerId: string) => {
     if (!isMultipleChoice) {
       setSelectedAnswers([answerId]);
@@ -76,12 +71,22 @@ export default function PracticeSessionPage({
     );
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!question || selectedAnswers.length === 0) return;
-    submitAnswer.mutate({
-      questionId: question.id,
-      selectedAnswerIds: selectedAnswers,
-    });
+    setIsPending(true);
+    try {
+      const response = await submitAnswerMutation({
+        questionId: question.id,
+        selectedAnswerIds: selectedAnswers,
+      });
+      setSubmitted({
+        isCorrect: response.isCorrect,
+        correctAnswerIds: response.correctAnswerIds,
+        explanation: response.explanation,
+      });
+    } finally {
+      setIsPending(false);
+    }
   };
 
   if (isLoading) {
@@ -151,7 +156,7 @@ export default function PracticeSessionPage({
         <div>
           <h1 className="text-3xl">Practice session</h1>
           <p className="text-sm text-textSecondary">
-            Topic: <span className="font-semibold">{question.topic.name}</span>
+            Topic: <span className="font-semibold">{question.topic?.name}</span>
           </p>
         </div>
         <Badge className="bg-accent-yellow">Question {currentIndex + 1} of {questions.length}</Badge>
@@ -162,7 +167,7 @@ export default function PracticeSessionPage({
           <Badge className="bg-accent-green">
             {isMultipleChoice ? "Multiple choice" : "Single choice"}
           </Badge>
-          <span className="text-sm text-textSecondary">{question.topic.name}</span>
+          <span className="text-sm text-textSecondary">{question.topic?.name}</span>
         </div>
         <h2 className="mt-4 text-xl font-serif">{question.content}</h2>
         <div className="mt-6 space-y-3 text-sm">
@@ -195,8 +200,8 @@ export default function PracticeSessionPage({
           })}
         </div>
         <div className="mt-6 flex flex-wrap gap-3">
-          <Button onClick={handleSubmit} disabled={submitAnswer.isPending || Boolean(submitted)}>
-            {submitAnswer.isPending ? "Submitting..." : "Submit answer"}
+          <Button onClick={handleSubmit} disabled={isPending || Boolean(submitted)}>
+            {isPending ? "Submitting..." : "Submit answer"}
           </Button>
           <Button variant="ghost" onClick={handleNextQuestion} disabled={!submitted}>
             {isLastQuestion ? "Finish session" : "Next question"}

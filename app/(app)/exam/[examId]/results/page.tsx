@@ -2,24 +2,32 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { useQuery, useMutation } from "convex/react";
+import { api } from "@/convex/_generated/api";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { trpc } from "@/lib/trpc/client";
+import { Id } from "@/convex/_generated/dataModel";
 
 export default function ExamResultsPage({ params }: { params: { examId: string } }) {
-  const [completed, setCompleted] = useState(false);
-  const completeExam = trpc.exam.complete.useMutation({
-    onSuccess: () => setCompleted(true),
-  });
-  const attempt = trpc.exam.getAttempt.useQuery({ examAttemptId: params.examId });
+  const examAttemptId = params.examId as Id<"examAttempts">;
+  const [completionResult, setCompletionResult] = useState<{ score: number; passed: boolean } | null>(null);
+  const [completing, setCompleting] = useState(false);
+  const completeExam = useMutation(api.exam.complete);
+  const attempt = useQuery(api.exam.getAttempt, { examAttemptId });
 
   useEffect(() => {
-    if (!completed) {
-      completeExam.mutate({ examAttemptId: params.examId });
+    if (!completionResult && !completing) {
+      setCompleting(true);
+      completeExam({ examAttemptId })
+        .then((result) => setCompletionResult(result))
+        .catch(() => {})
+        .finally(() => setCompleting(false));
     }
-  }, [completed, completeExam, params.examId]);
+  }, [completionResult, completing, completeExam, examAttemptId]);
 
-  if (attempt.isLoading || completeExam.isPending) {
+  const isLoading = attempt === undefined;
+
+  if (isLoading || completing) {
     return (
       <Card>
         <p className="text-sm text-textSecondary">Calculating results...</p>
@@ -27,8 +35,8 @@ export default function ExamResultsPage({ params }: { params: { examId: string }
     );
   }
 
-  const score = completeExam.data?.score;
-  const passed = completeExam.data?.passed ?? false;
+  const score = completionResult?.score;
+  const passed = completionResult?.passed ?? false;
 
   return (
     <div className="space-y-8">
@@ -38,7 +46,7 @@ export default function ExamResultsPage({ params }: { params: { examId: string }
           <p className="text-sm text-textSecondary">Attempt: {params.examId}</p>
         </div>
         <Badge className={passed ? "bg-accent-green" : "bg-errorBg"}>
-          {completeExam.data ? (passed ? "Passed" : "Not passed") : "In review"}
+          {completionResult ? (passed ? "Passed" : "Not passed") : "In review"}
         </Badge>
       </div>
 
@@ -52,13 +60,13 @@ export default function ExamResultsPage({ params }: { params: { examId: string }
         <Card>
           <h2 className="text-lg font-serif">Questions</h2>
           <div className="mt-3 text-4xl font-semibold">
-            {attempt.data?.questions.length ?? "—"}
+            {attempt?.questions.length ?? "—"}
           </div>
         </Card>
         <Card>
           <h2 className="text-lg font-serif">Status</h2>
           <div className="mt-3 text-4xl font-semibold">
-            {attempt.data?.status ?? "—"}
+            {attempt?.status ?? "—"}
           </div>
         </Card>
       </div>

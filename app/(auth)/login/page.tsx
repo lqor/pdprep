@@ -3,13 +3,14 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useAuthActions } from "@convex-dev/auth/react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { createSupabaseBrowserClient, isSupabaseConfigured } from "@/lib/auth/supabase";
 
 export default function LoginPage() {
   const router = useRouter();
+  const { signIn } = useAuthActions();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -20,30 +21,13 @@ export default function LoginPage() {
     setError(null);
     setLoading(true);
 
-    if (!isSupabaseConfigured()) {
-      setError("Supabase is not configured. Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY.");
+    try {
+      await signIn("password", { email, password, flow: "signIn" });
+      router.replace("/dashboard");
+    } catch (err: any) {
+      setError(err?.message ?? "Invalid email or password.");
       setLoading(false);
-      return;
     }
-
-    const supabase = createSupabaseBrowserClient();
-    if (!supabase) {
-      setError("Supabase is not configured.");
-      setLoading(false);
-      return;
-    }
-    const { error: signInError } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-
-    if (signInError) {
-      setError(signInError.message);
-      setLoading(false);
-      return;
-    }
-
-    router.replace("/dashboard");
   };
 
   return (
@@ -81,7 +65,7 @@ export default function LoginPage() {
               {error}
             </div>
           ) : null}
-          <Button type="submit" className="w-full" disabled={loading || !isSupabaseConfigured()}>
+          <Button type="submit" className="w-full" disabled={loading}>
             {loading ? "Signing in..." : "Sign in"}
           </Button>
         </form>

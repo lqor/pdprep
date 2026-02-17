@@ -1,36 +1,16 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { createSupabaseBrowserClient, isSupabaseConfigured } from "@/lib/auth/supabase";
 
 export default function SettingsPage() {
-  const [email, setEmail] = useState("");
-  const [name, setName] = useState("");
+  const user = useQuery(api.users.getMe, {});
 
-  useEffect(() => {
-    const loadUser = async () => {
-      if (!isSupabaseConfigured()) {
-        return;
-      }
-
-      const supabase = createSupabaseBrowserClient();
-      if (!supabase) {
-        return;
-      }
-      const { data } = await supabase.auth.getUser();
-      const user = data.user;
-      if (user) {
-        setEmail(user.email ?? "");
-        const fullName = (user.user_metadata?.full_name as string) ?? "";
-        setName(fullName);
-      }
-    };
-
-    loadUser();
-  }, []);
+  const email = user?.email ?? "";
+  const name = user?.name ?? "";
 
   return (
     <div className="space-y-8">
@@ -46,11 +26,11 @@ export default function SettingsPage() {
         <div className="mt-6 grid gap-4 md:grid-cols-2">
           <div>
             <label className="text-sm font-semibold">Name</label>
-            <Input className="mt-2" placeholder="Avery James" value={name} onChange={(e) => setName(e.target.value)} />
+            <Input className="mt-2" placeholder="Avery James" value={name} readOnly />
           </div>
           <div>
             <label className="text-sm font-semibold">Email</label>
-            <Input className="mt-2" placeholder="you@company.com" value={email} onChange={(e) => setEmail(e.target.value)} />
+            <Input className="mt-2" placeholder="you@company.com" value={email} readOnly />
           </div>
         </div>
         <Button className="mt-6" disabled>
