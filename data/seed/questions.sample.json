@@ -1,0 +1,36 @@
+[
+  {
+    "examType": "PD1",
+    "topic": "salesforce-fundamentals",
+    "type": "SINGLE_CHOICE",
+    "difficulty": 2,
+    "content": "Which tool should a developer use to deploy metadata between Salesforce orgs?",
+    "codeSnippet": null,
+    "explanation": "Change Sets are the built-in deployment mechanism for metadata between related orgs. Salesforce CLI is also valid for source-driven workflows, but Change Sets are the default in-platform tool.",
+    "referenceUrl": "https://developer.salesforce.com/docs/atlas.en-us.dev_lifecycle.meta/dev_lifecycle/deploying_change_sets.htm",
+    "isPremium": false,
+    "answers": [
+      { "content": "Change Sets", "isCorrect": true },
+      { "content": "Data Loader", "isCorrect": false },
+      { "content": "Report Builder", "isCorrect": false },
+      { "content": "Schema Builder", "isCorrect": false }
+    ]
+  },
+  {
+    "examType": "PD1",
+    "topic": "process-automation-logic",
+    "type": "SINGLE_CHOICE",
+    "difficulty": 3,
+    "content": "A developer needs to call Apex from a Lightning Web Component. Which annotation is required?",
+    "codeSnippet": null,
+    "explanation": "Use @AuraEnabled on Apex methods to make them available to Lightning Web Components.",
+    "referenceUrl": "https://developer.salesforce.com/docs/component-library/documentation/en/lwc/lwc.apex",
+    "isPremium": false,
+    "answers": [
+      { "content": "@AuraEnabled", "isCorrect": true },
+      { "content": "@InvocableMethod", "isCorrect": false },
+      { "content": "@RemoteAction", "isCorrect": false },
+      { "content": "@TestVisible", "isCorrect": false }
+    ]
+  }
+]
