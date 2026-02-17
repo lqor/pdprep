@@ -1,6 +1,7 @@
 import { query } from "./_generated/server";
 import { v } from "convex/values";
 import { requireAuth } from "./helpers";
+import { Id } from "./_generated/dataModel";
 
 export const getOverview = query({
   args: { examType: v.string() },
@@ -73,7 +74,7 @@ export const getTopicProgress = query({
       .first();
 
     if (!topic) {
-      topic = await ctx.db.get(args.topicId as any);
+      topic = await ctx.db.get(args.topicId as Id<"topics">);
     }
 
     if (!topic) throw new Error("Topic not found");

@@ -97,7 +97,7 @@ export const getAttempt = query({
 
     attemptQuestions.sort((a, b) => a.sortOrder - b.sortOrder);
 
-    const questions = await Promise.all(
+    const questionsRaw = await Promise.all(
       attemptQuestions.map(async (aq) => {
         const question = await ctx.db.get(aq.questionId);
         if (!question) return null;
@@ -125,6 +125,9 @@ export const getAttempt = query({
         };
       })
     );
+    const questions = questionsRaw.filter(
+      (q): q is NonNullable<typeof q> => q !== null
+    );
 
     const elapsedMinutes = (Date.now() - attempt.startedAt) / 1000 / 60;
     const remainingMinutes = Math.max(
@@ -138,7 +141,7 @@ export const getAttempt = query({
       startedAt: attempt.startedAt,
       durationMinutes: attempt.durationMinutes,
       timeRemainingMinutes: Math.ceil(remainingMinutes),
-      questions: questions.filter(Boolean),
+      questions,
     };
   },
 });
