@@ -11,7 +11,7 @@ const variantClasses: Record<ButtonVariant, string> = {
   primary: "btn-primary",
   secondary: "btn-secondary",
   ghost:
-    "neo-border px-4 py-2 shadow-brutal bg-transparent text-textPrimary hover:-translate-y-0.5 hover:-translate-x-0.5 hover:shadow-brutal-lg transition",
+    "neo-border px-4 py-2 shadow-brutal bg-transparent text-textPrimary transition hover:-translate-y-[2px] hover:-translate-x-[2px] hover:shadow-brutal-lg",
 };
 
 export function Button({

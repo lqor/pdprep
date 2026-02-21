@@ -37,8 +37,10 @@ module.exports = {
       },
       boxShadow: {
         brutal: "4px 4px 0 var(--color-shadow)",
-        "brutal-lg": "6px 6px 0 var(--color-shadow)",
+        "brutal-md": "6px 6px 0 var(--color-shadow)",
+        "brutal-lg": "8px 8px 0 var(--color-shadow)",
         "brutal-accent": "6px 6px 0 var(--color-accent-yellow)",
+        "brutal-accent-lg": "8px 8px 0 var(--color-accent-yellow)",
       },
     },
   },

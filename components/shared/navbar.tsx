@@ -15,9 +15,6 @@ export function Navbar() {
           <Link href="#how-it-works" className="interactive">
             How it works
           </Link>
-          <Link href="#features" className="interactive">
-            Features
-          </Link>
           <Link href="#faq" className="interactive">
             FAQ
           </Link>

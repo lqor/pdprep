@@ -14,7 +14,7 @@ export function Sidebar() {
   return (
     <aside className="flex w-full flex-col gap-6 border-r-2 border-border bg-bgSecondary px-6 py-8 md:w-64">
       <div>
-        <h2 className="text-xl font-semibold">pdprep</h2>
+        <h2 className="font-serif text-xl">pdprep</h2>
         <p className="text-sm text-textMuted">Your PD1 cockpit</p>
       </div>
       <nav className="flex flex-col gap-3 text-sm font-semibold">
@@ -32,8 +32,8 @@ export function Sidebar() {
         <SignOutButton />
       </div>
       <div className="mt-auto border-2 border-border bg-accent-green px-3 py-4 text-sm shadow-brutal">
-        <p className="font-semibold">Streak: 3 days</p>
-        <p className="text-xs text-textSecondary">Keep the momentum going.</p>
+        <p className="font-semibold">PD1 Prep</p>
+        <p className="text-xs text-textSecondary">93 questions across 4 topics</p>
       </div>
     </aside>
   );

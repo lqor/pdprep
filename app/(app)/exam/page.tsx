@@ -5,63 +5,62 @@ import { useState } from "react";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Card } from "@/components/ui/card";
-
-const exams = [
-  {
-    id: "PD1",
-    title: "Platform Developer 1",
-    description: "60 questions • 105 minutes • 68% pass mark",
-  },
-] as const;
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 
 export default function ExamPage() {
   const router = useRouter();
-  const [starting, setStarting] = useState<string | null>(null);
+  const [starting, setStarting] = useState(false);
   const startExam = useMutation(api.exam.start);
 
-  const handleStart = async (examType: "PD1") => {
-    setStarting(examType);
+  const handleStart = async () => {
+    setStarting(true);
     try {
-      const data = await startExam({ examType });
+      const data = await startExam({ examType: "PD1" });
       if (data.examAttemptId) {
         router.push(`/exam/${data.examAttemptId}`);
       }
     } finally {
-      setStarting(null);
+      setStarting(false);
     }
   };
 
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl">Mock exams</h1>
+        <h1 className="text-3xl">Mock exam</h1>
         <p className="text-sm text-textSecondary">
-          Simulate the real exam with a timed, weighted question set.
+          Simulate the real Salesforce PD1 exam under timed conditions.
         </p>
       </div>
-      <div className="grid gap-6 md:grid-cols-2">
-        {exams.map((exam) => (
-          <Card key={exam.id}>
-            <h2 className="text-xl font-serif">{exam.title}</h2>
-            <p className="mt-3 text-sm text-textSecondary">{exam.description}</p>
-            <button
-              type="button"
-              className="btn-primary mt-6 inline-block"
-              onClick={() => handleStart(exam.id)}
-              disabled={starting === exam.id}
-            >
-              {starting === exam.id ? "Starting..." : "Start mock exam"}
-            </button>
-          </Card>
-        ))}
-      </div>
-      <button
-        type="button"
-        className="btn-secondary inline-block"
+
+      <Card>
+        <h2 className="text-xl font-serif">Platform Developer 1</h2>
+        <div className="mt-4 flex flex-wrap gap-3">
+          <Badge className="bg-accent-yellow">60 questions</Badge>
+          <Badge className="bg-accent-green">105 minutes</Badge>
+          <Badge className="bg-accent-purple">68% to pass</Badge>
+        </div>
+        <p className="mt-4 text-sm text-textSecondary">
+          Questions are weighted by topic to match the real exam distribution.
+          Answers are reviewed after you submit the entire exam.
+        </p>
+        <Button
+          variant="primary"
+          className="mt-6"
+          onClick={handleStart}
+          disabled={starting}
+        >
+          {starting ? "Starting..." : "Start mock exam"}
+        </Button>
+      </Card>
+
+      <Button
+        variant="secondary"
         onClick={() => router.push("/exam/history")}
       >
         View exam history
-      </button>
+      </Button>
     </div>
   );
 }

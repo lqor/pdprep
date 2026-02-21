@@ -102,6 +102,7 @@ h1, h2, h3 {
   font-family: var(--font-serif);
   font-weight: 400;
   letter-spacing: var(--tracking-tight);
+  line-height: var(--leading-tight);
 }
 
 p {
@@ -161,12 +162,6 @@ a {
     border: 2px solid var(--color-border);
     box-shadow: 6px 6px 0 var(--color-shadow);
     padding: var(--space-8);
-    transition: all 0.2s ease;
-  }
-
-  .card:hover {
-    transform: translate(-2px, -2px);
-    box-shadow: 8px 8px 0 var(--color-accent-yellow);
   }
 
   .badge {
@@ -205,7 +200,11 @@ a {
     box-shadow: 4px 4px 0 var(--color-shadow);
   }
 
-  .shadow-brutal-lg {
+  .shadow-brutal-md {
     box-shadow: 6px 6px 0 var(--color-shadow);
+  }
+
+  .shadow-brutal-lg {
+    box-shadow: 8px 8px 0 var(--color-shadow);
   }
 }

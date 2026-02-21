@@ -272,6 +272,94 @@ export const complete = mutation({
   },
 });
 
+export const getAttemptResults = query({
+  args: { examAttemptId: v.id("examAttempts") },
+  handler: async (ctx, args) => {
+    const userId = await requireAuth(ctx);
+
+    const attempt = await ctx.db.get(args.examAttemptId);
+    if (!attempt || attempt.userId !== userId) {
+      throw new Error("Exam attempt not found");
+    }
+
+    const exam = await ctx.db.get(attempt.examId);
+
+    const attemptQuestions = await ctx.db
+      .query("examAttemptQuestions")
+      .withIndex("by_examAttemptId", (q) =>
+        q.eq("examAttemptId", attempt._id)
+      )
+      .collect();
+
+    attemptQuestions.sort((a, b) => a.sortOrder - b.sortOrder);
+
+    const userAnswers = await ctx.db
+      .query("userAnswers")
+      .withIndex("by_examAttemptId", (q) =>
+        q.eq("examAttemptId", attempt._id)
+      )
+      .collect();
+
+    const answersByQuestionId = new Map(
+      userAnswers.map((a) => [a.questionId.toString(), a])
+    );
+
+    const questionsRaw = await Promise.all(
+      attemptQuestions.map(async (aq) => {
+        const question = await ctx.db.get(aq.questionId);
+        if (!question) return null;
+        const topic = await ctx.db.get(question.topicId);
+        const userAnswer = answersByQuestionId.get(aq.questionId.toString());
+        const correctAnswerIds = question.answers
+          .filter((a) => a.isCorrect)
+          .map((a) => a.id);
+
+        return {
+          id: aq._id,
+          questionId: aq.questionId,
+          sortOrder: aq.sortOrder,
+          isFlagged: aq.isFlagged,
+          isCorrect: userAnswer?.isCorrect ?? false,
+          selectedAnswerIds: userAnswer?.selectedAnswerIds ?? [],
+          correctAnswerIds,
+          explanation: question.explanation,
+          referenceUrl: question.referenceUrl,
+          question: {
+            id: question._id,
+            content: question.content,
+            codeSnippet: question.codeSnippet,
+            type: question.type,
+            topic: topic
+              ? { id: topic._id, name: topic.name, slug: topic.slug }
+              : null,
+            answers: question.answers.map((a) => ({
+              id: a.id,
+              content: a.content,
+              sortOrder: a.sortOrder,
+            })),
+          },
+        };
+      })
+    );
+
+    const questions = questionsRaw.filter(
+      (q): q is NonNullable<typeof q> => q !== null
+    );
+
+    return {
+      id: attempt._id,
+      status: attempt.status,
+      score: attempt.score,
+      passed: attempt.passed,
+      startedAt: attempt.startedAt,
+      completedAt: attempt.completedAt,
+      questionCount: attempt.questionCount,
+      examName: exam?.name ?? "Exam",
+      questions,
+    };
+  },
+});
+
 export const getHistory = query({
   args: {
     examType: v.optional(v.string()),

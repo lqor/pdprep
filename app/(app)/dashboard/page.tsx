@@ -5,6 +5,7 @@ import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 
 export default function DashboardPage() {
   const overview = useQuery(api.progress.getOverview, { examType: "PD1" });
@@ -25,11 +26,11 @@ export default function DashboardPage() {
           </p>
         </div>
         <div className="flex gap-3">
-          <Link href="/practice" className="btn-secondary">
-            Continue practice
+          <Link href="/practice">
+            <Button variant="secondary">Continue practice</Button>
           </Link>
-          <Link href="/exam" className="btn-primary">
-            Start mock exam
+          <Link href="/exam">
+            <Button variant="primary">Start mock exam</Button>
           </Link>
         </div>
       </div>

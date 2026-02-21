@@ -6,31 +6,24 @@ import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 
 export default function PracticePage() {
   const router = useRouter();
   const data = useQuery(api.practice.getTopics, { examType: "PD1" });
   const isLoading = data === undefined;
 
-  const practiceAllHref = data?.[0] ? `/practice/${data[0].slug}` : null;
+  const startSession = (topicSlug: string, mode: "instant" | "end") => {
+    router.push(`/practice/${topicSlug}?feedback=${mode}` as Route);
+  };
 
   return (
     <div className="space-y-8">
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <h1 className="text-3xl">Practice topics</h1>
-          <p className="text-sm text-textSecondary">
-            Drill by topic or practice the full PD1 spread.
-          </p>
-        </div>
-        <button
-          type="button"
-          className="btn-primary"
-          onClick={() => practiceAllHref && router.push(practiceAllHref as Route)}
-          disabled={!practiceAllHref}
-        >
-          Practice all topics
-        </button>
+      <div>
+        <h1 className="text-3xl">Practice topics</h1>
+        <p className="text-sm text-textSecondary">
+          Choose a topic, then pick how you want feedback delivered.
+        </p>
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">
@@ -51,13 +44,20 @@ export default function PracticePage() {
               <p className="mt-1 text-xs text-textMuted">
                 Attempted: {topic.questionsAttempted} questions
               </p>
-              <button
-                type="button"
-                className="btn-secondary mt-6 inline-block"
-                onClick={() => router.push(`/practice/${topic.slug}` as Route)}
-              >
-                Practice topic
-              </button>
+              <div className="mt-6 flex flex-wrap gap-3">
+                <Button
+                  variant="primary"
+                  onClick={() => startSession(topic.slug, "instant")}
+                >
+                  Instant feedback
+                </Button>
+                <Button
+                  variant="secondary"
+                  onClick={() => startSession(topic.slug, "end")}
+                >
+                  Review at end
+                </Button>
+              </div>
             </Card>
           ))
         ) : (

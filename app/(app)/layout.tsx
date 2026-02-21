@@ -12,7 +12,7 @@ export default function AppLayout({
     <AuthGuard>
       <div className="min-h-screen bg-bgPrimary md:flex">
         <Sidebar />
-        <main className="flex-1 px-6 py-10 md:px-12">{children}</main>
+        <main className="flex-1 p-6 md:p-12">{children}</main>
       </div>
     </AuthGuard>
   );
