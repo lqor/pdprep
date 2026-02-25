@@ -11,19 +11,28 @@ export function Footer() {
           </p>
         </div>
         <div className="flex gap-6 text-sm">
-          <Link href="/dashboard" className="text-textSecondary hover:text-textPrimary transition-colors">
-            Dashboard
+          <Link
+            href="#how-it-works"
+            className="text-textSecondary transition-colors hover:text-textPrimary"
+          >
+            How it works
           </Link>
-          <Link href="/practice" className="text-textSecondary hover:text-textPrimary transition-colors">
-            Practice
+          <Link
+            href="#faq"
+            className="text-textSecondary transition-colors hover:text-textPrimary"
+          >
+            FAQ
           </Link>
-          <Link href="/exam" className="text-textSecondary hover:text-textPrimary transition-colors">
-            Mock Exams
+          <Link
+            href="/signup"
+            className="text-textSecondary transition-colors hover:text-textPrimary"
+          >
+            Get started
           </Link>
         </div>
       </div>
       <div className="border-t-2 border-border bg-bgPrimary px-6 py-6 text-center text-xs text-textMuted">
-        © 2026 pdprep. All rights reserved.
+        &copy; 2026 pdprep. All rights reserved.
       </div>
     </footer>
   );

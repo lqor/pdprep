@@ -44,6 +44,26 @@ const faqs = [
     answer:
       "Yes. All questions, mock exams, and explanations are free with no paywalls or tiers.",
   },
+  {
+    question: "How long does it take to feel exam-ready?",
+    answer:
+      "Most people feel confident after 2-3 weeks of consistent practice. Complete all 93 questions, take a few mock exams, and review the explanations.",
+  },
+  {
+    question: "Do I need Salesforce experience before starting?",
+    answer:
+      "Basic familiarity with Salesforce helps, but each question includes detailed explanations and links to official docs so you can learn as you go.",
+  },
+  {
+    question: "How is this different from Trailhead?",
+    answer:
+      "Trailhead teaches concepts. PDPrep tests them. Use Trailhead to learn, then use PDPrep to practice under exam conditions and find your weak spots.",
+  },
+  {
+    question: "Can I track my progress?",
+    answer:
+      "Yes. Your dashboard shows topic scores, completed questions, and mock exam history so you can see exactly where you stand.",
+  },
 ];
 
 export default function MarketingPage() {
@@ -57,14 +77,18 @@ export default function MarketingPage() {
           <span className="italic"> first try</span>.
         </h1>
         <p className="mx-auto mt-6 max-w-2xl text-lg text-textSecondary">
-          93 exam-accurate questions, timed mock exams, and detailed
-          explanations with links to official Salesforce docs. Free forever.
+          Everything you need to pass — practice questions, timed mock exams,
+          and detailed explanations linked to official Salesforce docs. Free
+          forever.
         </p>
         <div className="mt-8 flex justify-center gap-4">
           <Link href="/signup" className="btn-primary">
             Start free
           </Link>
         </div>
+        <p className="mt-4 text-sm text-textMuted">
+          No credit card required. Start practicing in under a minute.
+        </p>
       </section>
 
       {/* Stats */}
@@ -79,8 +103,30 @@ export default function MarketingPage() {
         </div>
       </section>
 
+      {/* Social proof */}
+      <section className="mx-auto w-full max-w-4xl px-6 py-16 text-center">
+        <p className="text-sm font-semibold uppercase tracking-wide text-textMuted">
+          Trusted by Salesforce professionals preparing for PD1
+        </p>
+        <div className="mx-auto mt-6 max-w-2xl">
+          <blockquote className="border-2 border-border bg-bgSecondary p-6 shadow-brutal">
+            <p className="text-lg font-serif italic text-textPrimary">
+              &ldquo;I passed PD1 on my first attempt after two weeks of
+              practicing with PDPrep. The explanations and doc links made all
+              the difference.&rdquo;
+            </p>
+            <footer className="mt-4 text-sm text-textSecondary">
+              &mdash; Salesforce Developer, certified 2026
+            </footer>
+          </blockquote>
+        </div>
+      </section>
+
       {/* How it works */}
-      <section id="how-it-works" className="mx-auto w-full max-w-4xl px-6 py-20">
+      <section
+        id="how-it-works"
+        className="mx-auto w-full max-w-4xl px-6 py-20"
+      >
         <h2 className="text-3xl md:text-4xl">How it works</h2>
         <div className="mt-10 grid gap-6 md:grid-cols-3">
           {features.map((feature) => (
@@ -91,9 +137,16 @@ export default function MarketingPage() {
                 {feature.step}
               </div>
               <h3 className="text-xl font-serif">{feature.title}</h3>
-              <p className="mt-4 text-sm text-textSecondary">{feature.description}</p>
+              <p className="mt-4 text-sm text-textSecondary">
+                {feature.description}
+              </p>
             </Card>
           ))}
+        </div>
+        <div className="mt-10 text-center">
+          <Link href="/signup" className="btn-primary">
+            Start practicing now
+          </Link>
         </div>
       </section>
 
@@ -107,6 +160,25 @@ export default function MarketingPage() {
               <p className="mt-3 text-sm text-textSecondary">{item.answer}</p>
             </Card>
           ))}
+        </div>
+      </section>
+
+      {/* Bottom CTA */}
+      <section className="mx-auto w-full max-w-4xl px-6 pb-20">
+        <div className="border-2 border-border bg-bgSecondary p-10 text-center shadow-brutal-md md:p-16">
+          <h2 className="text-3xl md:text-4xl">Ready to pass PD1?</h2>
+          <p className="mx-auto mt-4 max-w-xl text-textSecondary">
+            Join Salesforce professionals who are preparing smarter. 93
+            questions, mock exams, and detailed explanations — completely free.
+          </p>
+          <div className="mt-8">
+            <Link href="/signup" className="btn-primary">
+              Create free account
+            </Link>
+          </div>
+          <p className="mt-4 text-sm text-textMuted">
+            Most users feel exam-ready after 2-3 weeks of practice.
+          </p>
         </div>
       </section>
     </div>
