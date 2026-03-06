@@ -3,9 +3,12 @@ import Providers from "./providers";
 import "../styles/globals.css";
 
 export const metadata: Metadata = {
-  title: "pdprep",
+  title: "PDPrep - Free Salesforce PD1 Exam Prep",
   description:
-    "Practice questions, mock exams, and progress tracking for the Salesforce PD1 certification.",
+    "Pass Salesforce PD1 on the first try. 93 exam-accurate practice questions, timed mock exams, and detailed explanations linked to official Salesforce docs. Free forever.",
+  icons: {
+    icon: "/favicon.svg",
+  },
 };
 
 export default function RootLayout({
