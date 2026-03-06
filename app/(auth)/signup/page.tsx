@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useAuthActions } from "@convex-dev/auth/react";
 import { Button } from "@/components/ui/button";
@@ -9,7 +8,6 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 
 export default function SignupPage() {
-  const router = useRouter();
   const { signIn } = useAuthActions();
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
@@ -24,7 +22,7 @@ export default function SignupPage() {
 
     try {
       await signIn("password", { email, password, name: fullName, flow: "signUp" });
-      router.replace("/dashboard");
+      window.location.assign("/dashboard");
     } catch (err: any) {
       setError(err?.message ?? "Could not create account.");
       setLoading(false);

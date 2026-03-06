@@ -22,3 +22,5 @@ pnpm-debug.log*
 # Misc
 .vercel/
 .pnpm-store/
+playwright-report/
+test-results/

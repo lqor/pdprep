@@ -8,8 +8,8 @@ export default defineConfig({
     environment: "jsdom",
     globals: true,
     setupFiles: ["./tests/setup.tsx"],
-    include: ["tests/**/*.test.{ts,tsx}", "**/*.test.{ts,tsx}"],
-    exclude: ["node_modules", ".next"],
+    include: ["tests/**/*.test.{ts,tsx}"],
+    exclude: ["node_modules", ".next", ".claude"],
   },
   resolve: {
     alias: {

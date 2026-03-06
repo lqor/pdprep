@@ -12,7 +12,9 @@ export const getOverview = query({
       .query("exams")
       .withIndex("by_type", (q) => q.eq("type", args.examType))
       .first();
-    if (!exam) return { totalAttempted: 0, totalCorrect: 0, accuracy: 0, topics: [] };
+    if (!exam || !exam.isActive) {
+      return { totalAttempted: 0, totalCorrect: 0, accuracy: 0, topics: [] };
+    }
 
     const progress = await ctx.db
       .query("userProgress")
@@ -63,7 +65,7 @@ export const getTopicProgress = query({
       .query("exams")
       .withIndex("by_type", (q) => q.eq("type", args.examType))
       .first();
-    if (!exam) throw new Error("Exam not found");
+    if (!exam || !exam.isActive) throw new Error("Exam not found");
 
     // Try to find topic by slug first, then by ID
     let topic = await ctx.db
@@ -74,7 +76,10 @@ export const getTopicProgress = query({
       .first();
 
     if (!topic) {
-      topic = await ctx.db.get(args.topicId as Id<"topics">);
+      const topicById = await ctx.db.get(args.topicId as Id<"topics">);
+      if (topicById?.examId === exam._id && topicById.isActive) {
+        topic = topicById;
+      }
     }
 
     if (!topic) throw new Error("Topic not found");
@@ -105,7 +110,7 @@ export const getReadinessScore = query({
       .query("exams")
       .withIndex("by_type", (q) => q.eq("type", args.examType))
       .first();
-    if (!exam) return { readinessScore: 0 };
+    if (!exam || !exam.isActive) return { readinessScore: 0 };
 
     const progress = await ctx.db
       .query("userProgress")

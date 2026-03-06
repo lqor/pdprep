@@ -25,7 +25,7 @@ export default function ExamAttemptPage({ params }: { params: { examId: string }
   const completeExamMutation = useMutation(api.exam.complete);
 
   const isLoading = data === undefined;
-  const questions = data?.questions ?? [];
+  const questions = useMemo(() => data?.questions ?? [], [data?.questions]);
   const current = questions[currentIndex];
   const answerSelections = current ? selections[current.questionId as string] ?? [] : [];
   const isMultipleChoice = current?.question.type === "MULTIPLE_CHOICE";

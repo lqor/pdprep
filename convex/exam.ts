@@ -11,7 +11,7 @@ export const start = mutation({
       .query("exams")
       .withIndex("by_type", (q) => q.eq("type", args.examType))
       .first();
-    if (!exam) throw new Error("Exam not found");
+    if (!exam || !exam.isActive) throw new Error("Exam not found");
 
     const subscription = await ctx.db
       .query("subscriptions")
@@ -154,9 +154,27 @@ export const submitAnswer = mutation({
   },
   handler: async (ctx, args) => {
     const userId = await requireAuth(ctx);
+    const attempt = await ctx.db.get(args.examAttemptId);
+    if (!attempt || attempt.userId !== userId) {
+      throw new Error("Exam attempt not found");
+    }
 
     const question = await ctx.db.get(args.questionId);
     if (!question) throw new Error("Question not found");
+
+    const attemptQuestion = await ctx.db
+      .query("examAttemptQuestions")
+      .withIndex("by_examAttemptId_questionId", (q) =>
+        q
+          .eq("examAttemptId", args.examAttemptId)
+          .eq("questionId", question._id)
+      )
+      .first();
+
+    if (!attemptQuestion) throw new Error("Exam question not found");
+    if (attemptQuestion.userAnswerId) {
+      throw new Error("Question already answered");
+    }
 
     // Validate answer IDs
     const validAnswerIds = new Set(question.answers.map((a) => a.id));
@@ -186,19 +204,7 @@ export const submitAnswer = mutation({
       answeredAt: Date.now(),
     });
 
-    // Link to exam attempt question
-    const attemptQuestion = await ctx.db
-      .query("examAttemptQuestions")
-      .withIndex("by_examAttemptId_questionId", (q) =>
-        q
-          .eq("examAttemptId", args.examAttemptId)
-          .eq("questionId", question._id)
-      )
-      .first();
-
-    if (attemptQuestion) {
-      await ctx.db.patch(attemptQuestion._id, { userAnswerId });
-    }
+    await ctx.db.patch(attemptQuestion._id, { userAnswerId });
 
     return { ok: true };
   },
@@ -293,12 +299,14 @@ export const getAttemptResults = query({
 
     attemptQuestions.sort((a, b) => a.sortOrder - b.sortOrder);
 
-    const userAnswers = await ctx.db
+    const userAnswers = (
+      await ctx.db
       .query("userAnswers")
       .withIndex("by_examAttemptId", (q) =>
         q.eq("examAttemptId", attempt._id)
       )
-      .collect();
+      .collect()
+    ).filter((answer) => answer.userId === userId);
 
     const answersByQuestionId = new Map(
       userAnswers.map((a) => [a.questionId.toString(), a])
@@ -367,7 +375,7 @@ export const getHistory = query({
   },
   handler: async (ctx, args) => {
     const userId = await requireAuth(ctx);
-    const limit = args.limit ?? 10;
+    const limit = Math.min(Math.max(Math.floor(args.limit ?? 10), 1), 50);
 
     const attempts = await ctx.db
       .query("examAttempts")

@@ -12,7 +12,7 @@ export const getTopics = query({
       .query("exams")
       .withIndex("by_type", (q) => q.eq("type", args.examType))
       .first();
-    if (!exam) return [];
+    if (!exam || !exam.isActive) return [];
 
     const topics = await ctx.db
       .query("topics")
@@ -57,12 +57,16 @@ export const getQuestions = query({
   },
   handler: async (ctx, args) => {
     const userId = await requireAuth(ctx);
+    const requestedCount = Math.floor(args.count);
+    if (requestedCount < 1 || requestedCount > 50) {
+      throw new Error("Question count must be between 1 and 50");
+    }
 
     const exam = await ctx.db
       .query("exams")
       .withIndex("by_type", (q) => q.eq("type", args.examType))
       .first();
-    if (!exam) throw new Error("Exam not found");
+    if (!exam || !exam.isActive) throw new Error("Exam not found");
 
     const subscription = await ctx.db
       .query("subscriptions")
@@ -82,8 +86,12 @@ export const getQuestions = query({
       if (topicBySlug) {
         targetTopicId = topicBySlug._id;
       } else {
-        // Try as a direct ID
-        targetTopicId = args.topicId as Id<"topics">;
+        const topicById = await ctx.db.get(args.topicId as Id<"topics">);
+        if (topicById?.examId === exam._id && topicById.isActive) {
+          targetTopicId = topicById._id;
+        } else {
+          throw new Error("Topic not found");
+        }
       }
     }
 
@@ -124,7 +132,7 @@ export const getQuestions = query({
     }
 
     // Shuffle and take count
-    const shuffled = shuffleArray(questions).slice(0, args.count);
+    const shuffled = shuffleArray(questions).slice(0, requestedCount);
 
     return Promise.all(
       shuffled.map(async (q) => {
